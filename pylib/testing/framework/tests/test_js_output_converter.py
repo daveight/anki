@@ -85,13 +85,15 @@ class JsOutputConverterTests(unittest.TestCase):
         self.assertEqual(2, len(converters))
         self.assertEqual(ConverterFn('', 'return value', ''), converters[0])
         self.assertEqual(ConverterFn('', '''
-            result = []
-            n = value
-            while (n != null) {
-                result.push(converter1(n.data))
-                n = n.next
+            const visited = new Set()
+            const result = []
+            while (value != null && !visited.has(value)) {
+                result.push(converter1(value.data))
+                visited.add(value)
+                value = value.next
             }
-            return result''', ''), converters[1])
+            return result
+        ''', ''), converters[1])
 
     def test_binary_tree(self):
         tree = SyntaxTree.of(['binary_tree(int)'])

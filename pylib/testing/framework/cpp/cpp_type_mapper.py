@@ -139,12 +139,9 @@ class CppTypeMapper(TypeMapper):
                     \tT data;
                     \tshared_ptr<ListNode<T>> next;
 
-                    \tListNode() { }
-
-                    \tListNode(T data, shared_ptr<ListNode<T>> next) {
-                    \t\tthis->data = data;
-                    \t\tthis->next = next;
-                    \t}
+                    \tListNode(T data) : data{data}, next{nullptr} { }
+                    \tListNode(T data, shared_ptr<ListNode<T>> next) : data{data}, next{next} { }
+                    \t~ListNode() { while (next) next = std::move(next->next); }
                 };
             '''
         return 'shared_ptr<ListNode<' + self.render(child, context) + '>>'
@@ -165,8 +162,6 @@ class CppTypeMapper(TypeMapper):
                     \tT data;
                     \tshared_ptr<BinaryTreeNode<T>> left;
                     \tshared_ptr<BinaryTreeNode<T>> right;
-
-                    \tBinaryTreeNode() { } 
 
                     \tBinaryTreeNode(T data, shared_ptr<BinaryTreeNode<T>> left, shared_ptr<BinaryTreeNode<T>> right) {
                     \t\tthis->data = data;

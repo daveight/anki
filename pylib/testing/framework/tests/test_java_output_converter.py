@@ -96,12 +96,15 @@ class JavaOutputConverterTests(unittest.TestCase):
         self.assertEqual(2, len(converters))
         self.assertEqual(ConverterFn('', 'return value;', 'Integer', 'Integer'), converters[0])
         self.assertEqual(ConverterFn('', '''
-            List<Integer> result = new ArrayList<>();
-            while (value != null) {
+            Set<ListNode<Integer>> visited = new HashSet<>();
+            List result = new ArrayList();
+            while (value != null && !visited.contains(value)) {
                 result.add(converter1(value.data));
+                visited.add(value);
                 value = value.next;
             }
-            return result;''', 'ListNode<Integer>', 'List<Integer>'), converters[1])
+            return result;
+        ''', 'ListNode<Integer>', 'List'), converters[1])
 
     def test_binary_tree(self):
         tree = SyntaxTree.of(['binary_tree(int)'])

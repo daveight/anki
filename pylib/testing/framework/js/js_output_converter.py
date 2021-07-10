@@ -155,15 +155,16 @@ class JsOutputConverter(TypeConverter):
         """
         Converts linked-list to a list
         linked_list(string):
-        LinkedList<String>() { "a", "b", "c" } -> ["a", "b", "c"]
+        LinkedListNode("a") => LinkedListNode("b") => LinkedListNode("c") -> ["a", "b", "c"]
         """
         child = self.render(node.first_child(), context)
         src = render_template('''
-            result = []
-            n = value
-            while (n != null) {
-            \tresult.push({{child.fn_name}}(n.data))
-            \tn = n.next
+            const visited = new Set()
+            const result = []
+            while (value != null && !visited.has(value)) {
+            \tresult.push({{child.fn_name}}(value.data))
+            \tvisited.add(value)
+            \tvalue = value.next
             }
             return result''', child=child)
 

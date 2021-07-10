@@ -167,20 +167,28 @@ class JavaInputConverter(TypeConverter):
         """
         Creates linked-list, for every input element invokes inner type converter and puts it inside linked list
         linked_list(string):
-        ["a", "b", "c"] -> ListNode<String>() { "a", "b", "c" }
+        ["a", 1, "b", 2, "c"] -> LinkedListNode("a") => LinkedListNode("b") => LinkedListNode("c")
         """
 
         child: ConverterFn = self.render(node.first_child(), context)
         src = render_template('''
-            ListNode<{{child.ret_type}}> head = new ListNode<>();
-            ListNode<{{child.ret_type}}> node = head;
-            \tfor (JsonNode n : value) {
-            \t\tListNode<{{child.ret_type}}> nextNode = new ListNode<>();
-            \t\tnextNode.data = {{child.fn_name}}(n);
+            List<ListNode<{{child.ret_type}}>> nodes = new ArrayList<>();
+            for (int i = 0; i < value.size(); i += 2) {
+            \tJsonNode n = value.get(i);
+            \tListNode<{{child.ret_type}}> node = new ListNode<>();
+            \tnode.data = {{child.fn_name}}(n);
+            \tnodes.add(node);
+            }
+            for (int i = 1; i < value.size(); i += 2) {
+            \tJsonNode n = value.get(i);
+            \tListNode<{{child.ret_type}}> node = nodes.get((i - 1) / 2);
+            \tint nextIndex = n.asInt();
+            \tif (nextIndex >= 0) {
+            \t\tListNode<{{child.ret_type}}> nextNode = nodes.get(nextIndex); 
             \t\tnode.next = nextNode;
-            \t\tnode = nextNode;
             \t}
-            return head.next;
+            }
+            return nodes.isEmpty() ? null : nodes.get(0);
         ''', child=child)
         return ConverterFn(node.name, src, 'JsonNode', 'ListNode<' + child.ret_type + '>')
 

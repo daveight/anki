@@ -75,12 +75,12 @@ class PythonOutputConverterTests(unittest.TestCase):
         self.assertEqual(2, len(converters))
         self.assertEqual(ConverterFn('', 'return value', 'int', 'int'), converters[0])
         self.assertEqual(ConverterFn('', '''
+            visited = set([])
             result = []
-            n = value
-            while n is not None:
-                result.append(converter1(n.data))
-                n = n.next
-            
+            while value is not None and value not in visited:
+                result.append(converter1(value.data))
+                visited.add(value)
+                value = value.next
             return result
         ''', 'ListNode[int]', 'List[int]'), converters[1])
 

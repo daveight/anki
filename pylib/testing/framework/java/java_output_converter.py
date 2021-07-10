@@ -163,18 +163,20 @@ class JavaOutputConverter(TypeConverter):
         """
         Converts linked-list to a list
         linked_list(string):
-        LinkedList<String>() { "a", "b", "c" } -> ["a", "b", "c"]
+        LinkedListNode("a") => LinkedListNode("b") => LinkedListNode("c") -> ["a", "b", "c"]
         """
         child = self.render(node.first_child(), context)
         src = render_template('''
-            List<{{child.ret_type}}> result = new ArrayList<>();
-            while (value != null) {
+            Set<ListNode<{{child.arg_type}}>> visited = new HashSet<>();
+            List result = new ArrayList();
+            while (value != null && !visited.contains(value)) {
             \tresult.add({{child.fn_name}}(value.data));
+            \tvisited.add(value);
             \tvalue = value.next;
             }
             return result;''', child=child)
 
-        return ConverterFn(node.name, src, 'ListNode<' + child.arg_type + '>', 'List<' + child.ret_type + '>')
+        return ConverterFn(node.name, src, 'ListNode<' + child.arg_type + '>', 'List')
 
     def visit_binary_tree(self, node: SyntaxTree, context):
         """

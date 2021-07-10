@@ -149,15 +149,15 @@ class PythonOutputConverter(TypeConverter):
         """
         child = self.render(node.first_child(), context)
         src = render_template('''
+            \tvisited = set([])
             \tresult = []
-            \tn = value
-            \twhile n is not None:
-            \t\tresult.append({{child.fn_name}}(n.data))
-            \t\tn = n.next
-            \t
+            \twhile value is not None and value not in visited:
+            \t\tresult.append({{child.fn_name}}(value.data))
+            \t\tvisited.add(value)
+            \t\tvalue = value.next
             \treturn result''', child=child)
 
-        return ConverterFn(node.name, src, 'ListNode[' + child.arg_type + ']', 'List[' + child.ret_type + ']')
+        return ConverterFn(node.name, src, 'ListNode[' + child.ret_type + ']', 'List[' + child.ret_type + ']')
 
     def visit_binary_tree(self, node: SyntaxTree, context):
         """
